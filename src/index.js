@@ -1,122 +1,55 @@
-import express from "express";
-import http from "http";
-import { Socket, Server } from "socket.io";
-
-const app = express();
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {origin : '*'}
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var express_1 = require("express");
+var http_1 = require("http");
+var socket_io_1 = require("socket.io");
+var random = require('lodash.random');
+var app = (0, express_1.default)();
+var server = http_1.default.createServer(app);
+var io = new socket_io_1.Server(server, {
+    cors: { origin: '*' }
 });
-
-const port = 8080; // default port to listen
-
-let users = [];
-const messages = {
-  general : [],
-  random : [],
-  jokes : [],
-  TYPEscript : []
+var port = 8080; // default port to listen
+function getId() {
+    return random(0, 1000);
 }
-
-
-io.on('connection', (socket) => {
+var userNames = [];
+io.on('connection', function (socket) {
+    // tslint:disable-next-line:no-console
+    console.log('a user connected');
+    socket.on('createRoom', function (isPublic) {
         // tslint:disable-next-line:no-console
-        console.log('a user connected');
-
-    socket.on('join server', (username) => {
-          // tslint:disable-next-line:no-console
-          console.log("new user");
-          const user = {
-            username, 
-            id: socket.id,
-          }
-          users.push(user);
-          io.emit("new user", users);
-    });
-
-    socket.on('join room', (roomName, cb) => {
-      // tslint:disable-next-line:no-console
-      console.log("room join");
-      socket.join(roomName);
-      cb(messages[roomName]);
-    });
-    
-    socket.on('send message', ({content, to, sender, chatName, isChannel}) => {
-      // tslint:disable-next-line:no-console
-      //console.log(message);
-
-      if(isChannel) {
-        const payload = {
-          content, 
-          chatName,
-          sender,
+        console.log(isPublic);
+        var roomInfo = {
+            id: getId(),
+            playerCount: 0,
+            players: [],
+            isPublic: isPublic,
         };
-        socket.to(to).emit("new message", payload);
-      } else {
-        const payload = {
-          content, 
-          chatName : sender,
-          sender,
-        };
-        socket.to(to).emit("new message", payload);
-      }
-      if(messages[chatName]) {
-        messages[chatName].push({
-          sender, 
-          content
-        });
-      }
+        io.emit('newRoom', roomInfo);
     });
-
-
-  socket.on('disconnect', () => {
+    socket.on('disconnect', function () {
         // tslint:disable-next-line:no-console
         console.log('a user disconnected!');
-        users = users.filter(u => u.id !== socket.id);
-        io.emit("new user", users);
-  });
+    });
+    socket.on("login", function (userName) {
+        console.log('login');
+        console.log(userName);
+        if (userNames.find(function (name) { return name === userName; }) != undefined) {
+            io.emit("login", "INVALID");
+            console.log('login invalid');
+        }
+        else {
+            userNames.push(userName);
+            io.emit("login", "VALID");
+            console.log('login valid');
+        }
+    });
 });
-
-server.listen(port, () => {
- // tslint:disable-next-line:no-console
-  console.log(`listening on port ${port}`)
+server.listen(port, function () {
+    // tslint:disable-next-line:no-console
+    console.log("listening on port ".concat(port));
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /*
 // define a route handler for the default home page
 
@@ -133,4 +66,4 @@ server.listen(port, () => {
 app.listen( port, () => {
     // tslint:disable-next-line:no-console
 } );
-*/
+*/ 
