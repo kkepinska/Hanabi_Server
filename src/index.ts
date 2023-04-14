@@ -17,6 +17,10 @@ function getId(): number {
   return _.random(0, 1000)
 }
 
+function hasPlayer(room: RoomInfo, player: string): boolean {
+  return room.players.indexOf(player) !== -1
+}
+
 function addPlayer(room: RoomInfo, player: string): void {
   room.players.push(player)
   room.playerCount++
@@ -28,6 +32,12 @@ const roomsMap:  Map<number, RoomInfo> = new Map<number, RoomInfo>();
 io.on('connection', (socket) => {
   // tslint:disable-next-line:no-console
   console.log('a user connected');
+
+  socket.on('fetchAllRooms', () => {
+    // tslint:disable-next-line:no-console
+    console.log("fetching all rooms");
+    io.emit('fetchAllRooms', Array.from(roomsMap.values()));
+  });
 
   socket.on('createRoom', (isPublic: boolean) => {
     // tslint:disable-next-line:no-console
@@ -45,10 +55,13 @@ io.on('connection', (socket) => {
 
   socket.on('joinRoom', (roomId: number, player: string) => {
     // tslint:disable-next-line:no-console
-    console.log(roomId);
+    console.log("roomId in joinRoom:" + roomId);
+    console.log("rooms ids: " + Array.from(roomsMap.keys()))
     const roomInfo = roomsMap.get(roomId)
-    addPlayer(roomInfo, player)
-    io.emit('joinRoom', roomInfo);
+    if (!hasPlayer(roomInfo, player)) {
+      addPlayer(roomInfo, player)
+      io.emit('joinRoom', roomInfo);
+    }
   });
 
   socket.on('disconnect', () => {
