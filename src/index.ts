@@ -4,6 +4,7 @@ import { Socket, Server } from "socket.io";
 import { RoomInfo } from "./RoomInfo";
 import _ from "lodash";
 import { rootCertificates } from "tls";
+import { Game } from "./table";
 
 const app = express();
 const server = http.createServer(app);
@@ -28,6 +29,7 @@ function addPlayer(room: RoomInfo, player: string): void {
 
 const userNames: string[] = [];
 const roomsMap:  Map<number, RoomInfo> = new Map<number, RoomInfo>();
+const currentGames: Map<number, Game> = new Map<number, Game>();
 
 io.on('connection', (socket) => {
   // tslint:disable-next-line:no-console
@@ -57,6 +59,7 @@ io.on('connection', (socket) => {
     // tslint:disable-next-line:no-console
     console.log("roomId in joinRoom:" + roomId);
     console.log("rooms ids: " + Array.from(roomsMap.keys()))
+    socket.join(roomId.toString());
     const roomInfo = roomsMap.get(roomId)
     if (!hasPlayer(roomInfo, player)) {
       addPlayer(roomInfo, player)
@@ -81,62 +84,18 @@ io.on('connection', (socket) => {
       console.log('login valid');
     }
   })
+
+  socket.on('startGame', ({ gameId }) => {
+    let newGame = new Game(3, 5)
+    currentGames.set(gameId, newGame)
+    io.to(gameId.toString()).emit('startGame', newGame);
+    // tslint:disable-next-line:no-console
+    console.log("Someone is starting a game");
+  })
+
 });
 
 server.listen(port, () => {
  // tslint:disable-next-line:no-console
   console.log(`listening on port ${port}`)
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-// define a route handler for the default home page
-
-  io.on('connection', (socket:Socket) => {
-    socket.on("join", (arg, callback) => {
-        // tslint:disable-next-line:no-console
-        console.log(arg);
-        callback("got it");
-        socket.join("some room");
-        io.to("some room").emit("some event");
-      });
-  });
-// start the Express server
-app.listen( port, () => {
-    // tslint:disable-next-line:no-console
-} );
-*/
