@@ -5,6 +5,8 @@ import { RoomInfo } from "./RoomInfo";
 import _ from "lodash";
 import { rootCertificates } from "tls";
 import { Game } from "./table";
+import { Gamestate } from "./Gamestate";
+import { Card } from "./Card";
 
 const app = express();
 const server = http.createServer(app);
@@ -29,7 +31,7 @@ function addPlayer(room: RoomInfo, player: string): void {
 
 const userNames: string[] = [];
 const roomsMap:  Map<number, RoomInfo> = new Map<number, RoomInfo>();
-const currentGames: Map<number, Game> = new Map<number, Game>();
+const currentGames: Map<number, Gamestate> = new Map<number, Game>();
 
 io.on('connection', (socket) => {
   // tslint:disable-next-line:no-console
@@ -86,11 +88,24 @@ io.on('connection', (socket) => {
   })
 
   socket.on('startGame', ({ gameId }) => {
+    // tslint:disable-next-line:no-console
+    console.log(gameId);
     let newGame = new Game(3, 5)
     currentGames.set(gameId, newGame)
     io.to(gameId.toString()).emit('startGame', newGame);
     // tslint:disable-next-line:no-console
     console.log("Someone is starting a game");
+  })
+
+  socket.on('playCard', ({ hand, card, gameId }) => {
+    // tslint:disable-next-line:no-console
+    console.log(gameId);
+     // tslint:disable-next-line:no-console
+     console.log(hand, card);
+    currentGames.get(gameId).playAction({ player: hand, position: card})
+    io.to(gameId.toString()).emit('update', currentGames.get(gameId));
+    // tslint:disable-next-line:no-console
+    console.log("Card played");
   })
 
 });

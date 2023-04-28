@@ -1,3 +1,5 @@
+import { Hand } from "./Hand";
+
 export class hintStructure{
     type: string;
     hint: number;
