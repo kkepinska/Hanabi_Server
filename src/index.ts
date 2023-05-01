@@ -66,6 +66,7 @@ io.on('connection', (socket) => {
     if (!hasPlayer(roomInfo, player)) {
       addPlayer(roomInfo, player)
       io.emit('joinRoom', roomInfo);
+      io.to(roomId.toString()).emit('updateRoom', roomInfo)
     }
   });
 
@@ -87,28 +88,68 @@ io.on('connection', (socket) => {
     }
   })
 
-  socket.on('startGame', ({ gameId }) => {
+  socket.on('startGame', ( gameId: number ) => {
     // tslint:disable-next-line:no-console
     console.log(gameId);
-    let newGame = new Game(3, 5)
+
+    let room = roomsMap.get(gameId)
+    let newGame = new Game(room.players, 5)
     currentGames.set(gameId, newGame)
-    io.to(gameId.toString()).emit('startGame', newGame);
+
+    let entriesArray = Array.from(newGame.hands.entries())
+    io.to(gameId.toString()).emit('startGame', [newGame, entriesArray]);
+
     // tslint:disable-next-line:no-console
     console.log("Someone is starting a game");
+        // tslint:disable-next-line:no-console
+        console.log(newGame);
+        console.log("______________")
+        console.log(entriesArray)
   })
 
-  socket.on('playCard', ({ hand, card, gameId }) => {
+  socket.on('playCard', (player: string, cardIdx: number, gameId: number) => {
     // tslint:disable-next-line:no-console
     console.log(gameId);
      // tslint:disable-next-line:no-console
-     console.log(hand, card);
-    currentGames.get(gameId).playAction({ player: hand, position: card})
-    io.to(gameId.toString()).emit('update', currentGames.get(gameId));
+    console.log(player, cardIdx);
+
+    let game = currentGames.get(gameId);
+    game.playAction({ player: player, position: cardIdx })
+
+    io.to(gameId.toString()).emit('update', game);
+
     // tslint:disable-next-line:no-console
     console.log("Card played");
   })
 
+  socket.on('discardCard', (player: string, cardIdx: number, gameId: number) => {
+    let game = currentGames.get(gameId);
+    game.discardAction({ player: player, position: cardIdx })
+
+    io.to(gameId.toString()).emit('update', game);
+
+    // tslint:disable-next-line:no-console
+    console.log("Card discarded");
+  })
+
+  socket.on('hintCard', (player: string, receiver: string, 
+    hintType: ("rank" | "color"), hintValue: number, gameId: number) => {
+    let game = currentGames.get(gameId);
+    game.hintAction({ 
+      type: hintType,
+      hint: hintValue,
+      giver: player, 
+      receiver: receiver
+    })
+
+    io.to(gameId.toString()).emit('update', game);
+
+    // tslint:disable-next-line:no-console
+    console.log("Card hinted");
+  })
+
 });
+
 
 server.listen(port, () => {
  // tslint:disable-next-line:no-console

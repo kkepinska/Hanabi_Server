@@ -1,18 +1,18 @@
 import { Hand } from "./Hand";
 
 export class hintStructure{
-    type: string;
+    type: ("rank" | "color");
     hint: number;
-    giver: number;
-    receiver: number;
+    giver: string;
+    receiver: string;
 }
 
 export class discardStructure{
-    player: number;
+    player: string;
     position: number;
 }
 
 export class playStructure{
-    player: number;
+    player: string;
     position: number;
 }
