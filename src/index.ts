@@ -116,7 +116,8 @@ io.on('connection', (socket) => {
     let game = currentGames.get(gameId);
     game.playAction({ player: player, position: cardIdx })
 
-    io.to(gameId.toString()).emit('update', game);
+    let entriesArray = Array.from(game.hands.entries());
+    io.to(gameId.toString()).emit('update', [game, entriesArray]);
 
     // tslint:disable-next-line:no-console
     console.log("Card played");
@@ -126,7 +127,8 @@ io.on('connection', (socket) => {
     let game = currentGames.get(gameId);
     game.discardAction({ player: player, position: cardIdx })
 
-    io.to(gameId.toString()).emit('update', game);
+    let entriesArray = Array.from(game.hands.entries());
+    io.to(gameId.toString()).emit('update', [game, entriesArray]);
 
     // tslint:disable-next-line:no-console
     console.log("Card discarded");
@@ -142,7 +144,8 @@ io.on('connection', (socket) => {
       receiver: receiver
     })
 
-    io.to(gameId.toString()).emit('update', game);
+    let entriesArray = Array.from(game.hands.entries());
+    io.to(gameId.toString()).emit('update', [game, entriesArray]);
 
     // tslint:disable-next-line:no-console
     console.log("Card hinted");
