@@ -139,7 +139,7 @@ io.on('connection', (socket) => {
     let game = currentGames.get(gameId);
     game.hintAction({ 
       type: hintType,
-      hint: hintValue,
+      value: hintValue,
       giver: player, 
       receiver: receiver
     })

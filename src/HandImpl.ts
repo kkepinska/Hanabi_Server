@@ -9,27 +9,25 @@ export class HandImpl implements Hand{
         this.cards = cards;
     }
 
-    getHint(value: hintStructure): void {
-        if (value.type == "color") {
-            for (let i of this.cards) {
-                if (i.color == value.hint) {
-                    i.colorKlowleadge = [i.color]
-                } 
-                else {
-                    i.colorKlowleadge = i.colorKlowleadge.
-                        filter(obj => { return obj !== value.hint });
+    getHint(hint: hintStructure): void {
+        if (hint.type === "color") {
+            for (let card of this.cards) {
+                if (card.color === hint.value) {
+                    card.colorKnowledge = [card.color]
+                } else {
+                    card.colorKnowledge = card.colorKnowledge.
+                        filter(color => (color !== hint.value));
                 }
             }
         }
 
-        if (value.type == "rank") {
-            for (let i of this.cards) {
-                if (i.rank == value.hint) {
-                    i.rankKlowleadge = [i.rank]
-                } 
-                else {
-                    i.rankKlowleadge = i.rankKlowleadge.
-                        filter(obj => { return obj !== value.hint });
+        if (hint.type === "rank") {
+            for (let card of this.cards) {
+                if (card.rank === hint.value) {
+                    card.rankKnowledge = [card.rank]
+                } else {
+                    card.rankKnowledge = card.rankKnowledge.
+                        filter(rank => (rank !== hint.value));
                 }
             }
         }

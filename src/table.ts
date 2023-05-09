@@ -37,7 +37,7 @@ export class Game implements Gamestate{
     lifeTokens: number;
     players: Array<string>;
     currentPlayer: string;
-    currentPlayerIdx: number;
+    private currentPlayerIdx: number;
 
     constructor(players: Array<string>, numberOfColors: number) {
         this.gameInfo = {

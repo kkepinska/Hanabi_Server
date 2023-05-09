@@ -2,7 +2,7 @@ import { Hand } from "./Hand";
 
 export class hintStructure{
     type: ("rank" | "color");
-    hint: number;
+    value: number;
     giver: string;
     receiver: string;
 }

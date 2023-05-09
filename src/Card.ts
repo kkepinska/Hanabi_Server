@@ -1,6 +1,6 @@
 export interface Card {
     color: number;
     rank: number;
-    colorKlowleadge: Array<number>;
-    rankKlowleadge: Array<number>;
+    colorKnowledge: Array<number>;
+    rankKnowledge: Array<number>;
 }
