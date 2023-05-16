@@ -1,6 +1,8 @@
+import { color } from "./colors"
+
 export interface Card {
-    color: number;
+    color: color;
     rank: number;
-    colorKnowledge: Array<number>;
+    colorKnowledge: Array<color>;
     rankKnowledge: Array<number>;
 }

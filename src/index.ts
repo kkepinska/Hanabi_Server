@@ -93,7 +93,7 @@ io.on('connection', (socket) => {
     console.log(gameId);
 
     let room = roomsMap.get(gameId)
-    let newGame = new Game(room.players, 5)
+    let newGame = new Game(room.players)
     currentGames.set(gameId, newGame)
 
     let entriesArray = Array.from(newGame.hands.entries())

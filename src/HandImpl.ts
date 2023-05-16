@@ -1,6 +1,7 @@
 import { Card } from "./Card"
 import { Hand } from "./Hand"
 import { hintStructure } from "./utils"
+import { color } from "./colors"
 
 export class HandImpl implements Hand{
     cards: Array<Card>;
@@ -12,11 +13,12 @@ export class HandImpl implements Hand{
     getHint(hint: hintStructure): void {
         if (hint.type === "color") {
             for (let card of this.cards) {
-                if (card.color === hint.value) {
-                    card.colorKnowledge = [card.color]
+                if (card.color === hint.value || card.color == color.RAINDBOW) {
+                    card.colorKnowledge = card.colorKnowledge.
+                    filter(col => (col == hint.value || col == color.RAINDBOW));
                 } else {
                     card.colorKnowledge = card.colorKnowledge.
-                        filter(color => (color !== hint.value));
+                        filter(col => (col !== hint.value && col !== color.RAINDBOW));
                 }
             }
         }

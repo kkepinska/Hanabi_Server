@@ -5,22 +5,42 @@ import { Gamestate } from "./Gamestate";
 import { hintStructure, discardStructure, playStructure} from "./utils"
 import { HandImpl } from "./HandImpl";
 import { CardBasic } from "./CardBasic";
+import { color } from "./colors"
 
 class basicDeck {
-    static createDeck(numberOfColors: number): Array<Card> {
-        let deck: Array<Card> = [];
-        for (let i = 1; i <= numberOfColors; i++) {
-            deck.push(new CardBasic(i, 1, numberOfColors));
-            deck.push(new CardBasic(i, 1, numberOfColors));
-            deck.push(new CardBasic(i, 1, numberOfColors));
-            deck.push(new CardBasic(i, 2, numberOfColors));
-            deck.push(new CardBasic(i, 2, numberOfColors));
-            deck.push(new CardBasic(i, 3, numberOfColors));
-            deck.push(new CardBasic(i, 3, numberOfColors));
-            deck.push(new CardBasic(i, 4, numberOfColors));
-            deck.push(new CardBasic(i, 4, numberOfColors));
-            deck.push(new CardBasic(i, 1, numberOfColors));
+    static createDeck(setOfColors: Set<color>, raindbowCritical: boolean, blackCritical: boolean): Array<Card> {
+        let deck: Array<Card> = []; 
+        if (raindbowCritical) {
+            deck.push(new CardBasic(color.RAINDBOW, 1, setOfColors));
+            deck.push(new CardBasic(color.RAINDBOW, 2, setOfColors));
+            deck.push(new CardBasic(color.RAINDBOW, 3, setOfColors));
+            deck.push(new CardBasic(color.RAINDBOW, 4, setOfColors));
+            deck.push(new CardBasic(color.RAINDBOW, 5, setOfColors));
+            setOfColors.delete(color.RAINDBOW);
         }
+
+        if (blackCritical) {
+            deck.push(new CardBasic(color.BLACK, 1, setOfColors));
+            deck.push(new CardBasic(color.BLACK, 2, setOfColors));
+            deck.push(new CardBasic(color.BLACK, 3, setOfColors));
+            deck.push(new CardBasic(color.BLACK, 4, setOfColors));
+            deck.push(new CardBasic(color.BLACK, 5, setOfColors));
+            setOfColors.delete(color.BLACK);
+        }
+
+        for (let i of setOfColors) {
+            deck.push(new CardBasic(i, 1, setOfColors));
+            deck.push(new CardBasic(i, 1, setOfColors));
+            deck.push(new CardBasic(i, 1, setOfColors));
+            deck.push(new CardBasic(i, 2, setOfColors));
+            deck.push(new CardBasic(i, 2, setOfColors));
+            deck.push(new CardBasic(i, 3, setOfColors));
+            deck.push(new CardBasic(i, 3, setOfColors));
+            deck.push(new CardBasic(i, 4, setOfColors));
+            deck.push(new CardBasic(i, 4, setOfColors));
+            deck.push(new CardBasic(i, 5, setOfColors));
+        }
+
         deck = deck.sort(function () { return Math.random() - 0.5; });
         return deck;
     }
@@ -39,21 +59,25 @@ export class Game implements Gamestate{
     currentPlayer: string;
     private currentPlayerIdx: number;
 
-    constructor(players: Array<string>, numberOfColors: number) {
-        this.gameInfo = {
-            maxHints: 8,
-            handSize: 4,
-            numberOfPlayers: players.length,
-            numberOfColors: numberOfColors,
-        }
-        this.deck = basicDeck.createDeck(numberOfColors);
+    constructor(players: Array<string>, mode: string = "basic") {
+        //TODO
+        if(mode == "basic")
+            this.gameInfo = {
+                maxHints: 8,
+                handSize: 4,
+                numberOfPlayers: players.length,
+                setOfColors: new Set<color>([1, 2, 3, 4, 5, color.RAINDBOW]),
+                raindbowCritical: false,
+                blackCritical: false,
+            }
+        this.deck = basicDeck.createDeck(this.gameInfo.setOfColors, this.gameInfo.raindbowCritical, this.gameInfo.blackCritical);
         this.hands = new Map<string, Hand>()
         for (let player of players) {
             this.hands.set(player, new HandImpl(this.deck.splice(this.deck.length - this.gameInfo.handSize, this.gameInfo.handSize)));
         }
         this.discard = [];
         this.availableHints = this.gameInfo.maxHints;
-        this.currentScore = new Array<number>(this.gameInfo.numberOfColors).fill(0);
+        this.currentScore = new Array<number>(this.gameInfo.setOfColors.size).fill(0);
         this.lifeTokens = 3;
         this.players = players;
         this.currentPlayerIdx = 0;
