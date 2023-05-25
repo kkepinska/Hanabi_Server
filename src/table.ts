@@ -2,7 +2,7 @@ import { GameInfo } from "./GameInfo"
 import { Card } from "./Card"
 import { Hand } from "./Hand"
 import { Gamestate } from "./Gamestate";
-import { hintStructure, discardStructure, playStructure} from "./utils"
+import { hintStructure, discardStructure, playStructure, action} from "./utils"
 import { HandImpl } from "./HandImpl";
 import { CardBasic } from "./CardBasic";
 import { color } from "./colors"
@@ -58,6 +58,7 @@ export class Game implements Gamestate{
     players: Array<string>;
     currentPlayer: string;
     private currentPlayerIdx: number;
+    history: action[];
 
     constructor(players: Array<string>, mode: string = "basic") {
         //TODO
@@ -82,15 +83,17 @@ export class Game implements Gamestate{
         this.players = players;
         this.currentPlayerIdx = 0;
         this.currentPlayer = players[this.currentPlayerIdx];
+        this.history = new Array<action>();
     }
 
     hintAction(value: hintStructure) : boolean {
-        if (value.giver != this.currentPlayer || this.availableHints == 0) {
+        if (value.player != this.currentPlayer || this.availableHints == 0) {
             return false;
         }
         this.availableHints -= 1;
         this.hands.get(value.receiver).getHint(value);
         this.setNextPlayer();
+        this.history.push(value);
         return true;
     }
 
@@ -99,8 +102,10 @@ export class Game implements Gamestate{
             return false;
         }
         this.availableHints += 1;
-        this.discard.push(this.hands.get(value.player).exchangeCard(value.position, this.deck.pop()));
+        value.card = this.hands.get(value.player).exchangeCard(value.position, this.deck.pop())
+        this.discard.push(value.card);
         this.setNextPlayer();
+        this.history.push(value);
         return true;
     }
 
@@ -116,6 +121,8 @@ export class Game implements Gamestate{
             this.lifeTokens -= 1;
             this.discard.push(playedCard);
         }
+        value.card = playedCard;
+        this.history.push(value)
         this.setNextPlayer();
         return true;
     }

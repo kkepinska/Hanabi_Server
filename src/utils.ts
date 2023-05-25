@@ -1,18 +1,29 @@
+import { Card } from "./Card";
 import { Hand } from "./Hand";
 
-export class hintStructure{
+export class hintStructure implements action {
+    player: string;
+    receiver: string;
     type: ("rank" | "color");
     value: number;
-    giver: string;
-    receiver: string;
+    actionType: "hint" = "hint";
 }
 
-export class discardStructure{
+export class discardStructure implements action {
     player: string;
     position: number;
+    card?: Card;
+    actionType: "discard" = "discard";
 }
 
-export class playStructure{
+export class playStructure implements action {
     player: string;
     position: number;
+    card?: Card;
+    actionType: "play" = "play";
+}
+
+export interface action {
+    player: string;
+    actionType: ("hint" | "discard" | "play");
 }
