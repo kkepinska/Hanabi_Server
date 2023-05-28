@@ -8,37 +8,37 @@ import { CardBasic } from "./CardBasic";
 import { color } from "./colors"
 
 class basicDeck {
-    static createDeck(setOfColors: Set<color>, raindbowCritical: boolean, blackCritical: boolean): Array<Card> {
+    static createDeck(setOfColors: Set<color>, maxRank: number, raindbowCritical: boolean, blackCritical: boolean): Array<Card> {
         let deck: Array<Card> = []; 
         if (raindbowCritical) {
-            deck.push(new CardBasic(color.RAINDBOW, 1, setOfColors));
-            deck.push(new CardBasic(color.RAINDBOW, 2, setOfColors));
-            deck.push(new CardBasic(color.RAINDBOW, 3, setOfColors));
-            deck.push(new CardBasic(color.RAINDBOW, 4, setOfColors));
-            deck.push(new CardBasic(color.RAINDBOW, 5, setOfColors));
+            deck.push(new CardBasic(color.RAINDBOW, 1, setOfColors, maxRank));
+            deck.push(new CardBasic(color.RAINDBOW, 2, setOfColors, maxRank));
+            deck.push(new CardBasic(color.RAINDBOW, 3, setOfColors, maxRank));
+            deck.push(new CardBasic(color.RAINDBOW, 4, setOfColors, maxRank));
+            deck.push(new CardBasic(color.RAINDBOW, 5, setOfColors, maxRank));
             setOfColors.delete(color.RAINDBOW);
         }
 
         if (blackCritical) {
-            deck.push(new CardBasic(color.BLACK, 1, setOfColors));
-            deck.push(new CardBasic(color.BLACK, 2, setOfColors));
-            deck.push(new CardBasic(color.BLACK, 3, setOfColors));
-            deck.push(new CardBasic(color.BLACK, 4, setOfColors));
-            deck.push(new CardBasic(color.BLACK, 5, setOfColors));
+            deck.push(new CardBasic(color.BLACK, 1, setOfColors, maxRank));
+            deck.push(new CardBasic(color.BLACK, 2, setOfColors, maxRank));
+            deck.push(new CardBasic(color.BLACK, 3, setOfColors, maxRank));
+            deck.push(new CardBasic(color.BLACK, 4, setOfColors, maxRank));
+            deck.push(new CardBasic(color.BLACK, 5, setOfColors, maxRank));
             setOfColors.delete(color.BLACK);
         }
 
         for (let i of setOfColors) {
-            deck.push(new CardBasic(i, 1, setOfColors));
-            deck.push(new CardBasic(i, 1, setOfColors));
-            deck.push(new CardBasic(i, 1, setOfColors));
-            deck.push(new CardBasic(i, 2, setOfColors));
-            deck.push(new CardBasic(i, 2, setOfColors));
-            deck.push(new CardBasic(i, 3, setOfColors));
-            deck.push(new CardBasic(i, 3, setOfColors));
-            deck.push(new CardBasic(i, 4, setOfColors));
-            deck.push(new CardBasic(i, 4, setOfColors));
-            deck.push(new CardBasic(i, 5, setOfColors));
+            deck.push(new CardBasic(i, 1, setOfColors, maxRank));
+            deck.push(new CardBasic(i, 1, setOfColors, maxRank));
+            deck.push(new CardBasic(i, 1, setOfColors, maxRank));
+            deck.push(new CardBasic(i, 2, setOfColors, maxRank));
+            deck.push(new CardBasic(i, 2, setOfColors, maxRank));
+            deck.push(new CardBasic(i, 3, setOfColors, maxRank));
+            deck.push(new CardBasic(i, 3, setOfColors, maxRank));
+            deck.push(new CardBasic(i, 4, setOfColors, maxRank));
+            deck.push(new CardBasic(i, 4, setOfColors, maxRank));
+            deck.push(new CardBasic(i, 5, setOfColors, maxRank));
         }
 
         deck = deck.sort(function () { return Math.random() - 0.5; });
@@ -67,11 +67,11 @@ export class Game implements Gamestate{
                 maxHints: 8,
                 handSize: 4,
                 numberOfPlayers: players.length,
-                setOfColors: new Set<color>([1, 2, 3, 4, 5, color.RAINDBOW]),
+                setOfColors: new Set<color>([1, 2, 3, 4, 5]),
                 raindbowCritical: false,
                 blackCritical: false,
             }
-        this.deck = basicDeck.createDeck(this.gameInfo.setOfColors, this.gameInfo.raindbowCritical, this.gameInfo.blackCritical);
+        this.deck = basicDeck.createDeck(this.gameInfo.setOfColors, 5, this.gameInfo.raindbowCritical, this.gameInfo.blackCritical);
         this.hands = new Map<string, Hand>()
         for (let player of players) {
             this.hands.set(player, new HandImpl(this.deck.splice(this.deck.length - this.gameInfo.handSize, this.gameInfo.handSize)));
