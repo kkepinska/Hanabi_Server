@@ -114,8 +114,8 @@ export class Game implements Gamestate{
             return false;
         }
         let playedCard = this.hands.get(value.player).exchangeCard(value.position, this.deck.pop());
-        if(this.currentScore.at(playedCard.color) == playedCard.rank -1 ){
-            this.currentScore[playedCard.color] += 1;
+        if(this.currentScore.at(playedCard.color-1) == playedCard.rank -1 ){
+            this.currentScore[playedCard.color-1] += 1;
         }
         else {
             this.lifeTokens -= 1;
