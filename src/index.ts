@@ -40,7 +40,7 @@ io.on('connection', (socket) => {
   socket.on('fetchAllRooms', () => {
     // tslint:disable-next-line:no-console
     console.log("fetching all rooms");
-    io.emit('fetchAllRooms', Array.from(roomsMap.values()));
+    socket.emit('fetchAllRooms', Array.from(roomsMap.values()));
   });
 
   socket.on('createRoom', (isPublic: boolean) => {
@@ -65,7 +65,7 @@ io.on('connection', (socket) => {
     const roomInfo = roomsMap.get(roomId)
     if (!hasPlayer(roomInfo, player)) {
       addPlayer(roomInfo, player)
-      io.emit('joinRoom', roomInfo);
+      socket.emit('joinRoom', roomInfo);
       io.to(roomId.toString()).emit('updateRoom', roomInfo)
     }
   });
@@ -79,11 +79,11 @@ io.on('connection', (socket) => {
     console.log('login');
     console.log(userName);
     if (userNames.find(name => name === userName) != undefined) {
-      io.emit("login", ["INVALID", userName])
+      socket.emit("login", ["INVALID", userName])
       console.log('login invalid');
     } else {
       userNames.push(userName)
-      io.emit("login", ["VALID", userName])
+      socket.emit("login", ["VALID", userName])
       console.log('login valid');
     }
   })
