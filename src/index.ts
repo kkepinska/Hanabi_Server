@@ -93,18 +93,21 @@ io.on('connection', (socket) => {
     console.log(gameId);
 
     let room = roomsMap.get(gameId)
+    roomsMap.delete(gameId)
     let newGame = new Game(room.players)
     currentGames.set(gameId, newGame)
 
     let entriesArray = Array.from(newGame.hands.entries())
     io.to(gameId.toString()).emit('startGame', [newGame, entriesArray]);
 
+    io.emit('deleteRoom', gameId);
+
     // tslint:disable-next-line:no-console
     console.log("Someone is starting a game");
-        // tslint:disable-next-line:no-console
-        console.log(newGame);
-        console.log("______________")
-        console.log(entriesArray)
+    // tslint:disable-next-line:no-console
+    console.log(newGame);
+    console.log("______________")
+    console.log(entriesArray)
   })
 
   socket.on('playCard', (player: string, cardIdx: number, gameId: number) => {
