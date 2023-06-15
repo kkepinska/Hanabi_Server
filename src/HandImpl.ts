@@ -38,7 +38,8 @@ export class HandImpl implements Hand{
     exchangeCard(position: number, newCard: Card): Card {
         let card = this.cards.at(position);
         this.cards.splice(position, 1);
-        this.cards.push(newCard);
+        if ( newCard != null)
+            this.cards.push(newCard);
         return card;
     }
 }

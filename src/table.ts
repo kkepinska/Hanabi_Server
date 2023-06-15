@@ -61,6 +61,7 @@ export class Game implements Gamestate{
     history: action[];
     last_player: string;
     end_of_game: boolean; 
+    score: number
 
     constructor(players: Array<string>, mode: string = "basic") {
         //TODO
@@ -88,6 +89,7 @@ export class Game implements Gamestate{
         this.history = new Array<action>();
         this.last_player = null;
         this.end_of_game = false;
+        this.score = 0
     }
 
     hintAction(value: hintStructure) : boolean {
@@ -120,6 +122,7 @@ export class Game implements Gamestate{
         let playedCard = this.hands.get(value.player).exchangeCard(value.position, this.deck.pop());
         if(this.currentScore.at(playedCard.color-1) == playedCard.rank -1 ){
             this.currentScore[playedCard.color-1] += 1;
+            this.score += 1;
         }
         else {
             this.lifeTokens -= 1;
@@ -139,8 +142,11 @@ export class Game implements Gamestate{
             this.end_of_game = true;
             return;
         }
-        if (this.deck.length == 0) {
+        if (this.deck.length == 0 && this.last_player == null) {
             this.last_player = this.players[this.currentPlayerIdx];
+        }
+        if (this.score == 5*this.gameInfo.setOfColors.size) {
+            this.end_of_game = true; 
         }
         this.currentPlayerIdx = (this.currentPlayerIdx + 1) % this.players.length
         this.currentPlayer = this.players[this.currentPlayerIdx]
