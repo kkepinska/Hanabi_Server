@@ -88,13 +88,13 @@ io.on('connection', (socket) => {
     }
   })
 
-  socket.on('startGame', ( gameId: number ) => {
+  socket.on('startGame', ( gameId: number, mode: string ) => {
     // tslint:disable-next-line:no-console
     console.log(gameId);
 
     let room = roomsMap.get(gameId)
     roomsMap.delete(gameId)
-    let newGame = new Game(room.players)
+    let newGame = new Game(room.players, mode)
     currentGames.set(gameId, newGame)
 
     let entriesArray = Array.from(newGame.hands.entries())

@@ -4,7 +4,7 @@ export interface GameInfo {
     maxHints: number;
     handSize: number;
     numberOfPlayers: number;
-    setOfColors: Set<color>;
+    setOfColors: Array<color>;
     raindbowCritical: boolean;
     blackCritical: boolean;
 }

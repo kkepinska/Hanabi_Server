@@ -13,12 +13,12 @@ export class HandImpl implements Hand{
     getHint(hint: hintStructure): void {
         if (hint.type === "color") {
             for (let card of this.cards) {
-                if (card.color === hint.value || card.color == color.RAINDBOW) {
+                if (card.color === hint.value || card.color == color.RAINBOW) {
                     card.colorKnowledge = card.colorKnowledge.
-                    filter(col => (col == hint.value || col == color.RAINDBOW));
+                    filter(col => (col == hint.value || col == color.RAINBOW));
                 } else {
                     card.colorKnowledge = card.colorKnowledge.
-                        filter(col => (col !== hint.value && col !== color.RAINDBOW));
+                        filter(col => (col !== hint.value && col !== color.RAINBOW));
                 }
             }
         }
