@@ -1,12 +1,10 @@
 import express from "express";
 import http from "http";
-import { Socket, Server } from "socket.io";
+import { Server } from "socket.io";
 import { RoomInfo } from "./RoomInfo";
 import _ from "lodash";
-import { rootCertificates } from "tls";
 import { Game } from "./table";
 import { Gamestate } from "./Gamestate";
-import { Card } from "./Card";
 
 const app = express();
 const server = http.createServer(app);
@@ -16,8 +14,11 @@ const io = new Server(server, {
 
 const port = 8080; // default port to listen
 
+const MIN_ID = 10000;
+const MAX_ID = 99999;
+
 function getId(): number {
-  return _.random(0, 1000)
+  return _.random(MIN_ID, MAX_ID)
 }
 
 function hasPlayer(room: RoomInfo, player: string): boolean {
@@ -26,7 +27,6 @@ function hasPlayer(room: RoomInfo, player: string): boolean {
 
 function addPlayer(room: RoomInfo, player: string): void {
   room.players.push(player)
-  room.playerCount++
 }
 
 const userNames: string[] = [];
