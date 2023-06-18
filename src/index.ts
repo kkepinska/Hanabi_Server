@@ -37,24 +37,37 @@ io.on('connection', (socket) => {
   // tslint:disable-next-line:no-console
   console.log('a user connected');
 
+  socket.on("login", (userName: string) => {
+    console.log('login');
+    console.log(userName);
+    if (userNames.find(name => name === userName) !== undefined) {
+      socket.emit("login", ["INVALID", userName])
+      console.log('login invalid');
+    } else {
+      userNames.push(userName)
+      socket.emit("login", ["VALID", userName])
+      console.log('login valid');
+    }
+  })
+
   socket.on('fetchAllRooms', () => {
-    // tslint:disable-next-line:no-console
     console.log("fetching all rooms");
     socket.emit('fetchAllRooms', Array.from(roomsMap.values()));
   });
 
-  socket.on('createRoom', (isPublic: boolean) => {
-    // tslint:disable-next-line:no-console
-    console.log(isPublic);
+  socket.on('createRoom', (isPublic: boolean, mode: string, playerCount: number) => {
+    console.log(isPublic)
     const roomId = getId()
     var roomInfo : RoomInfo = {
       id: roomId,
-      playerCount: 0,
+      playerCount: playerCount,
       players: [],
       isPublic : isPublic,
+      mode: mode
     }
     roomsMap.set(roomId, roomInfo)
-    io.emit('newRoom', roomInfo);
+    io.emit('newRoom', roomInfo)
+    socket.emit('createdRoom', roomInfo)
   });
 
   socket.on('joinRoom', (roomId: number, player: string) => {
@@ -75,26 +88,12 @@ io.on('connection', (socket) => {
         console.log('a user disconnected!');
   });
 
-  socket.on("login", (userName: string) => {
-    console.log('login');
-    console.log(userName);
-    if (userNames.find(name => name === userName) != undefined) {
-      socket.emit("login", ["INVALID", userName])
-      console.log('login invalid');
-    } else {
-      userNames.push(userName)
-      socket.emit("login", ["VALID", userName])
-      console.log('login valid');
-    }
-  })
-
-  socket.on('startGame', ( gameId: number, mode: string ) => {
-    // tslint:disable-next-line:no-console
+  socket.on('startGame', (gameId: number) => {
     console.log(gameId);
 
     let room = roomsMap.get(gameId)
     roomsMap.delete(gameId)
-    let newGame = new Game(room.players, mode)
+    let newGame = new Game(room.players, room.mode)
     currentGames.set(gameId, newGame)
 
     let entriesArray = Array.from(newGame.hands.entries())
@@ -102,9 +101,7 @@ io.on('connection', (socket) => {
 
     io.emit('deleteRoom', gameId);
 
-    // tslint:disable-next-line:no-console
     console.log("Someone is starting a game");
-    // tslint:disable-next-line:no-console
     console.log(newGame);
     console.log("______________")
     console.log(entriesArray)
