@@ -22,6 +22,7 @@ function getId(): number {
 }
 
 function hasPlayer(room: RoomInfo, player: string): boolean {
+  console.log(room, player)
   return room.players.indexOf(player) !== -1
 }
 
@@ -55,6 +56,7 @@ io.on('connection', (socket) => {
     socket.emit('fetchAllRooms', Array.from(roomsMap.values()));
   });
 
+  
   socket.on('createRoom', (isPublic: boolean, mode: string, playerCount: number) => {
     console.log(isPublic)
     const roomId = getId()
@@ -71,11 +73,14 @@ io.on('connection', (socket) => {
   });
 
   socket.on('joinRoom', (roomId: number, player: string) => {
-    // tslint:disable-next-line:no-console
     console.log("roomId in joinRoom:" + roomId)
     console.log("rooms ids: " + Array.from(roomsMap.keys()))
+
     socket.join(roomId.toString());
     const roomInfo = roomsMap.get(roomId)
+    if (roomInfo === undefined) {
+        return
+    }
     if (!hasPlayer(roomInfo, player)) {
       addPlayer(roomInfo, player)
       socket.emit('joinRoom', roomInfo)
@@ -90,54 +95,61 @@ io.on('connection', (socket) => {
   });
 
   socket.on('startGame', (gameId: number) => {
-    console.log(gameId);
+    console.log("Starting games", gameId);
 
     let room = roomsMap.get(gameId)
+    if (room === undefined) {
+        return
+    }
     roomsMap.delete(gameId)
     let newGame = new Game(room.players, room.mode)
     currentGames.set(gameId, newGame)
 
     let entriesArray = Array.from(newGame.hands.entries())
-    io.to(gameId.toString()).emit('startGame', [newGame, entriesArray]);
-
-    io.emit('deleteRoom', gameId);
+    io.to(gameId.toString()).emit('startGame', [newGame, entriesArray])
+    io.emit('deleteRoom', gameId)
 
     console.log("Someone is starting a game");
-    console.log(newGame);
+    console.log(newGame)
     console.log("______________")
     console.log(entriesArray)
   })
 
   socket.on('playCard', (player: string, cardIdx: number, gameId: number) => {
-    // tslint:disable-next-line:no-console
-    console.log(gameId);
-     // tslint:disable-next-line:no-console
-    console.log(player, cardIdx);
+    console.log(gameId)
+    console.log(player, cardIdx)
 
-    let game = currentGames.get(gameId);
+    let game = currentGames.get(gameId)
+    if (game === undefined) {
+        return
+    }
     game.playAction({ player: player, position: cardIdx, actionType: "play"})
 
-    let entriesArray = Array.from(game.hands.entries());
-    io.to(gameId.toString()).emit('update', [game, entriesArray]);
+    let entriesArray = Array.from(game.hands.entries())
+    io.to(gameId.toString()).emit('update', [game, entriesArray])
 
-    // tslint:disable-next-line:no-console
     console.log("Card played");
   })
 
   socket.on('discardCard', (player: string, cardIdx: number, gameId: number) => {
-    let game = currentGames.get(gameId);
+    let game = currentGames.get(gameId)
+    if (game === undefined) {
+        return
+    }
     game.discardAction({ player: player, position: cardIdx, actionType: "discard"})
 
-    let entriesArray = Array.from(game.hands.entries());
-    io.to(gameId.toString()).emit('update', [game, entriesArray]);
+    let entriesArray = Array.from(game.hands.entries())
+    io.to(gameId.toString()).emit('update', [game, entriesArray])
 
-    // tslint:disable-next-line:no-console
-    console.log("Card discarded");
+    console.log("Card discarded")
   })
 
   socket.on('hintCard', (player: string, receiver: string, 
     hintType: ("rank" | "color"), hintValue: number, gameId: number) => {
-    let game = currentGames.get(gameId);
+    let game = currentGames.get(gameId)
+    if (game === undefined) {
+        return
+    }
     game.hintAction({ 
       type: hintType,
       value: hintValue,
@@ -145,12 +157,20 @@ io.on('connection', (socket) => {
       receiver: receiver,
       actionType: "hint"
     })
-
     let entriesArray = Array.from(game.hands.entries());
-    io.to(gameId.toString()).emit('update', [game, entriesArray]);
-    console.log(game);
-    // tslint:disable-next-line:no-console
-    console.log("Card hinted");
+    io.to(gameId.toString()).emit('update', [game, entriesArray])
+
+    console.log(game)
+    console.log("Card hinted")
+  })
+
+  socket.on('fetchRoom', (gameId: number) => {
+    let game = currentGames.get(gameId)
+    if (game === undefined) {
+        return
+    }
+    let entriesArray = Array.from(game.hands.entries())
+    io.to(gameId.toString()).emit('update', [game, entriesArray])
   })
 
 });
