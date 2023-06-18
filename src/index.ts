@@ -66,19 +66,20 @@ io.on('connection', (socket) => {
       mode: mode
     }
     roomsMap.set(roomId, roomInfo)
-    io.emit('newRoom', roomInfo)
     socket.emit('createdRoom', roomInfo)
+    io.emit('fetchAllRooms', Array.from(roomsMap.values()))
   });
 
   socket.on('joinRoom', (roomId: number, player: string) => {
     // tslint:disable-next-line:no-console
-    console.log("roomId in joinRoom:" + roomId);
+    console.log("roomId in joinRoom:" + roomId)
     console.log("rooms ids: " + Array.from(roomsMap.keys()))
     socket.join(roomId.toString());
     const roomInfo = roomsMap.get(roomId)
     if (!hasPlayer(roomInfo, player)) {
       addPlayer(roomInfo, player)
-      socket.emit('joinRoom', roomInfo);
+      socket.emit('joinRoom', roomInfo)
+      io.emit('fetchAllRooms', Array.from(roomsMap.values()))
       io.to(roomId.toString()).emit('updateRoom', roomInfo)
     }
   });
